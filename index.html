@@ -1,515 +1,740 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub ZIP Uploader</title>
-    
-    <!-- Load JSZip dari CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 28px;
-        }
-        
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            font-weight: 600;
-            color: #555;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-        
-        input,
-        select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .file-input {
-            border: 2px dashed #ccc;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 10px;
-            transition: all 0.3s;
-            position: relative;
-        }
-        
-        .file-input:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
-        }
-        
-        .file-input input[type="file"] {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-        
-        .file-name {
-            margin-top: 10px;
-            color: #667eea;
-            font-weight: 500;
-        }
-        
-        button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-        }
-        
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-        
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        #progress {
-            margin-top: 20px;
-            display: none;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        #result {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            display: none;
-        }
-        
-        .success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .mode-hint {
-            font-size: 12px;
-            color: #888;
-            margin-top: 5px;
-        }
-        
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            color: #999;
-            font-size: 12px;
-        }
-        
-        .loading-dots::after {
-            content: '...';
-            animation: dots 1.5s steps(4, end) infinite;
-        }
-        
-        @keyframes dots {
-            0% {
-                content: '';
-            }
-            25% {
-                content: '.';
-            }
-            50% {
-                content: '..';
-            }
-            75% {
-                content: '...';
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Uploader GitHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --void:#040907;
+    --panel:#081410;
+    --panel-2:#0b1b15;
+    --line:#13352a;
+    --line-soft:#0e261d;
+    --green:#27ffa6;
+    --green-dim:#0f6a4d;
+    --blue:#34c3ff;
+    --blue-dim:#10496c;
+    --text:#d9fbec;
+    --text-dim:#5f8c7c;
+    --red:#ff5c72;
+    --font:'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html, body{
+    height:100%;
+    overscroll-behavior:none;
+    touch-action:manipulation;
+  }
+
+  body{
+    font-family:var(--font);
+    background:var(--void);
+    color:var(--text);
+    width:100vw;
+    height:100dvh;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    padding:clamp(10px, 3vw, 24px);
+  }
+
+  .bg-glow{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(39,255,166,0.10), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(52,195,255,0.10), transparent 45%);
+  }
+  .bg-grid{
+    position:fixed; inset:-2px; z-index:0; pointer-events:none; opacity:0.35;
+    background-image:
+      linear-gradient(rgba(39,255,166,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(39,255,166,0.05) 1px, transparent 1px);
+    background-size: 34px 34px;
+    animation: gridDrift 18s linear infinite;
+    mask-image: radial-gradient(circle at 50% 40%, #000 0%, transparent 75%);
+  }
+  @keyframes gridDrift{
+    0%{ background-position: 0 0, 0 0; }
+    100%{ background-position: 34px 68px, 34px 68px; }
+  }
+  .scanline{
+    position:fixed; left:0; right:0; height:120px; z-index:1; pointer-events:none;
+    background:linear-gradient(180deg, transparent, rgba(39,255,166,0.05), transparent);
+    animation: scanMove 7s linear infinite;
+  }
+  @keyframes scanMove{
+    0%{ top:-120px; }
+    100%{ top:100dvh; }
+  }
+
+  /* ===== BOOT OVERLAY ===== */
+  #boot{
+    position:fixed; inset:0; z-index:50;
+    background:var(--void);
+    display:flex; flex-direction:column;
+    align-items:flex-start; justify-content:center;
+    padding: clamp(20px, 8vw, 60px);
+    font-size:clamp(12px, 2.6vw, 15px);
+    line-height:1.9;
+    transition: opacity .5s ease, visibility .5s ease;
+  }
+  #boot.hide{ opacity:0; visibility:hidden; }
+  #boot .ln{ color:var(--text-dim); opacity:0; white-space:pre; }
+  #boot .ln .ok{ color:var(--green); }
+  #boot .ln.show{ animation: lineIn .35s ease forwards; }
+  @keyframes lineIn{ from{opacity:0; transform:translateX(-6px);} to{opacity:1; transform:translateX(0);} }
+  #boot .caret{
+    display:inline-block; width:8px; height:14px; background:var(--green);
+    margin-left:6px; animation: blink 1s steps(1) infinite; vertical-align:middle;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  /* ===== MAIN WINDOW ===== */
+  .wrap{
+    position:relative; z-index:2;
+    width:min(560px, 94vw);
+    max-height:94dvh;
+    display:flex; flex-direction:column;
+    opacity:0; transform:translateY(14px) scale(.98);
+  }
+  .wrap.in{ animation: riseIn .6s cubic-bezier(.2,.8,.2,1) forwards; }
+  @keyframes riseIn{ to{ opacity:1; transform:translateY(0) scale(1); } }
+
+  .term{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    box-shadow:
+      0 0 0 1px rgba(39,255,166,0.04),
+      0 30px 80px -20px rgba(0,0,0,0.8),
+      0 0 60px -20px rgba(39,255,166,0.15);
+    display:flex; flex-direction:column;
+    overflow:hidden;
+    max-height:94dvh;
+    animation: borderPulse 4s ease-in-out infinite;
+  }
+  @keyframes borderPulse{
+    0%,100%{ box-shadow:0 0 0 1px rgba(39,255,166,0.04), 0 30px 80px -20px rgba(0,0,0,0.8), 0 0 60px -20px rgba(39,255,166,0.15); }
+    50%{ box-shadow:0 0 0 1px rgba(52,195,255,0.08), 0 30px 80px -20px rgba(0,0,0,0.8), 0 0 70px -15px rgba(52,195,255,0.22); }
+  }
+
+  .titlebar{
+    flex-shrink:0;
+    display:flex; align-items:center; gap:10px;
+    padding:12px 16px;
+    background:var(--panel-2);
+    border-bottom:1px solid var(--line);
+  }
+  .dot{ width:10px; height:10px; border-radius:50%; }
+  .dot.d1{ background:var(--green); box-shadow:0 0 8px var(--green); }
+  .dot.d2{ background:var(--blue); box-shadow:0 0 8px var(--blue); }
+  .dot.d3{ background:var(--line); }
+  .titlebar span{
+    margin-left:4px; font-size:12px; color:var(--text-dim); letter-spacing:.03em;
+  }
+
+  .body-scroll{
+    overflow-y:auto;
+    padding:clamp(16px,4vw,26px);
+  }
+  .body-scroll::-webkit-scrollbar{ width:8px; }
+  .body-scroll::-webkit-scrollbar-thumb{ background:var(--line); border-radius:8px; }
+  .body-scroll::-webkit-scrollbar-track{ background:transparent; }
+
+  h1{
+    font-size:clamp(18px, 4.4vw, 23px);
+    font-weight:800;
+    letter-spacing:.01em;
+    display:flex; align-items:center; gap:10px;
+    color:var(--text);
+  }
+  h1 .pfx{ color:var(--green); }
+  .subtitle{
+    color:var(--text-dim);
+    font-size:clamp(11px,2.6vw,13px);
+    margin-top:6px;
+    margin-bottom:18px;
+  }
+  .subtitle b{ color:var(--blue); font-weight:600; }
+
+  .cmd-preview{
+    background:#020705;
+    border:1px solid var(--line-soft);
+    border-radius:8px;
+    padding:12px 14px;
+    font-size:clamp(10px,2.4vw,12.5px);
+    line-height:1.6;
+    word-break:break-all;
+    margin-bottom:20px;
+    color:var(--text-dim);
+  }
+  .cmd-preview .dollar{ color:var(--green); }
+  .cmd-preview .cmd{ color:var(--text); }
+  .cmd-preview .flag{ color:var(--blue); }
+  .cmd-preview .val{ color:var(--green); }
+  .cmd-preview .cursor{
+    display:inline-block; width:7px; height:13px; background:var(--green);
+    vertical-align:middle; margin-left:2px; animation: blink 1s steps(1) infinite;
+  }
+
+  .form-group{ margin-bottom:16px; }
+  label{
+    display:flex; align-items:center; gap:6px;
+    font-weight:600; color:var(--text-dim);
+    margin-bottom:7px; font-size:clamp(10.5px,2.5vw,12.5px);
+    letter-spacing:.04em; text-transform:uppercase;
+  }
+  label .flagname{ color:var(--blue); font-weight:700; }
+
+  input, select{
+    width:100%;
+    padding:12px 14px;
+    background:#020705;
+    border:1px solid var(--line);
+    border-radius:8px;
+    color:var(--text);
+    font-family:var(--font);
+    font-size:13.5px;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  input::placeholder{ color:#2c5446; }
+  input:focus, select:focus{
+    outline:none;
+    border-color:var(--green);
+    box-shadow:0 0 0 3px rgba(39,255,166,0.12);
+  }
+  select{ cursor:pointer; }
+  select option{ background:#081410; }
+
+  .hint{ font-size:10.5px; color:#3f6657; margin-top:5px; }
+
+  .file-input{
+    border:1.5px dashed var(--line);
+    padding:22px 14px;
+    text-align:center;
+    cursor:pointer;
+    border-radius:8px;
+    position:relative;
+    transition: border-color .2s, background .2s;
+    background:#020705;
+  }
+  .file-input:hover{ border-color:var(--blue); background:rgba(52,195,255,0.04); }
+  .file-input .ic{ font-size:20px; }
+  .file-input .t1{ font-size:12.5px; color:var(--text); margin-top:6px; }
+  .file-input .t2{ font-size:10.5px; color:var(--text-dim); margin-top:3px; }
+  .file-input input[type="file"]{
+    position:absolute; inset:0; opacity:0; cursor:pointer;
+  }
+  .file-name{ margin-top:9px; color:var(--green); font-size:12px; word-break:break-all; }
+
+  button{
+    width:100%;
+    padding:14px;
+    background:linear-gradient(135deg, var(--green-dim), var(--blue-dim));
+    border:1px solid var(--green);
+    color:var(--text);
+    border-radius:8px;
+    font-family:var(--font);
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:.04em;
+    cursor:pointer;
+    margin-top:6px;
+    position:relative;
+    overflow:hidden;
+    transition: transform .15s, box-shadow .2s, opacity .2s;
+  }
+  button:hover:not(:disabled){
+    transform:translateY(-2px);
+    box-shadow:0 8px 24px -8px rgba(39,255,166,0.45);
+  }
+  button:active:not(:disabled){ transform:translateY(0); }
+  button:disabled{ opacity:.55; cursor:not-allowed; }
+
+  #progress{ margin-top:20px; display:none; }
+  .progress-head{
+    display:flex; justify-content:space-between;
+    font-size:11.5px; color:var(--text-dim); margin-bottom:8px;
+  }
+  #statusText{ color:var(--blue); }
+  #progressText{ color:var(--green); font-weight:700; }
+  .progress-bar{
+    width:100%; height:8px; border-radius:8px;
+    background:var(--line-soft); overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .progress-fill{
+    height:100%; width:0%;
+    background:linear-gradient(90deg, var(--green), var(--blue));
+    background-size:200% 100%;
+    box-shadow:0 0 12px rgba(39,255,166,0.5);
+    transition:width .3s ease;
+    animation: stripes 1.4s linear infinite;
+  }
+  @keyframes stripes{ 0%{ background-position:0% 0; } 100%{ background-position:200% 0; } }
+
+  .log{
+    margin-top:12px;
+    background:#020705;
+    border:1px solid var(--line-soft);
+    border-radius:8px;
+    padding:10px 12px;
+    height:120px;
+    overflow-y:auto;
+    font-size:11px;
+    line-height:1.75;
+  }
+  .log::-webkit-scrollbar{ width:6px; }
+  .log::-webkit-scrollbar-thumb{ background:var(--line); border-radius:6px; }
+  .log p{ opacity:0; animation: lineIn .25s ease forwards; white-space:pre-wrap; word-break:break-all; }
+  .log .gray{ color:var(--text-dim); }
+  .log .ok{ color:var(--green); }
+  .log .bad{ color:var(--red); }
+  .log .path{ color:var(--blue); }
+
+  #result{
+    margin-top:18px; padding:14px 16px; border-radius:8px;
+    display:none; font-size:12.5px; line-height:1.7;
+    animation: lineIn .3s ease forwards;
+  }
+  .success{ background:rgba(39,255,166,0.08); border:1px solid var(--green-dim); color:var(--text); }
+  .error{ background:rgba(255,92,114,0.08); border:1px solid var(--red); color:#ffd2d8; }
+  #result a{ color:var(--blue); }
+
+  .footer{
+    margin-top:18px; text-align:center; color:#2c5446; font-size:10.5px;
+    letter-spacing:.04em;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>📦 GitHub Uploader</h1>
-        <p class="subtitle">Upload ZIP langsung ke GitHub via API</p>
+
+  <div class="bg-glow"></div>
+  <div class="bg-grid"></div>
+  <div class="scanline"></div>
+
+  <div id="boot">
+    <div class="ln" data-text="uploader_github --init"></div>
+    <div class="ln" data-text="loading modules ... <span class='ok'>OK</span>"></div>
+    <div class="ln" data-text="connecting api.github.com ... <span class='ok'>OK</span>"></div>
+    <div class="ln" data-text="ready.<span class='caret'></span>"></div>
+  </div>
+
+  <div class="wrap" id="wrap">
+    <div class="term">
+
+      <div class="titlebar">
+        <span class="dot d1"></span>
+        <span class="dot d2"></span>
+        <span class="dot d3"></span>
+        <span>uploader-github@local: ~</span>
+      </div>
+
+      <div class="body-scroll">
+        <h1><span class="pfx">&gt;</span> Uploader GitHub</h1>
+        <p class="subtitle">Push isi file <b>.zip</b> langsung ke repository GitHub lewat API — tanpa git, tanpa terminal asli.</p>
+
+        <div class="cmd-preview" id="cmdPreview">
+          <span class="dollar">$</span> <span class="cmd">gh-upload</span>
+          <span class="flag">--owner</span>=<span class="val" id="cmdOwner">...</span>
+          <span class="flag">--repo</span>=<span class="val" id="cmdRepo">...</span>
+          <span class="flag">--mode</span>=<span class="val" id="cmdMode">new</span>
+          <span class="val" id="cmdFile">./archive.zip</span><span class="cursor"></span>
+        </div>
 
         <form id="uploadForm">
-            <div class="form-group">
-                <label>🔑 GitHub Token</label>
-                <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxx" required>
-                <div class="mode-hint">
-                    Buat di Settings → Developer settings → Personal access tokens (repo scope)
-                </div>
-            </div>
+          <div class="form-group">
+            <label><span class="flagname">--token</span> Personal Access Token</label>
+            <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxx" required>
+            <div class="hint">Settings → Developer settings → Personal access tokens (scope: repo)</div>
+          </div>
 
-            <div class="form-group">
-                <label>👤 Username</label>
-                <input type="text" id="owner" placeholder="username_github" required>
-            </div>
+          <div class="form-group">
+            <label><span class="flagname">--owner</span> Username GitHub</label>
+            <input type="text" id="owner" placeholder="username_github" required>
+          </div>
 
-            <div class="form-group">
-                <label>📁 Nama Repository</label>
-                <input type="text" id="repo" placeholder="my-repo" required>
-            </div>
+          <div class="form-group">
+            <label><span class="flagname">--repo</span> Nama Repository</label>
+            <input type="text" id="repo" placeholder="my-repo" required>
+          </div>
 
-            <div class="form-group">
-                <label>🔄 Mode</label>
-                <select id="mode">
-                    <option value="new">Buat Repository Baru</option>
-                    <option value="existing">Upload ke Repository Existing</option>
-                </select>
-            </div>
+          <div class="form-group">
+            <label><span class="flagname">--mode</span> Mode Upload</label>
+            <select id="mode">
+              <option value="new">Buat Repository Baru</option>
+              <option value="existing">Upload ke Repository Existing</option>
+            </select>
+          </div>
 
-            <div class="form-group">
-                <label>📤 Pilih File ZIP</label>
-                <div class="file-input">
-                    <div>📁 Drag & drop atau klik untuk pilih file</div>
-                    <div style="font-size: 12px; color: #999; margin-top: 5px;">Hanya file .ZIP (Max 50MB)</div>
-                    <input type="file" id="zipFile" accept=".zip" required>
-                </div>
-                <div class="file-name" id="fileName"></div>
+          <div class="form-group">
+            <label>Source File</label>
+            <div class="file-input">
+              <div class="ic">📦</div>
+              <div class="t1">Drag &amp; drop atau klik untuk pilih file</div>
+              <div class="t2">Hanya file .ZIP &middot; maks 50MB</div>
+              <input type="file" id="zipFile" accept=".zip" required>
             </div>
+            <div class="file-name" id="fileName"></div>
+          </div>
 
-            <button type="submit" id="submitBtn">🚀 Upload ke GitHub</button>
+          <button type="submit" id="submitBtn">▶ Jalankan Upload</button>
         </form>
 
         <div id="progress">
-            <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                <span id="statusText">Memproses...</span>
-                <span id="progressText">0%</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
+          <div class="progress-head">
+            <span id="statusText">Memproses...</span>
+            <span id="progressText">0%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="log" id="log"></div>
         </div>
 
         <div id="result"></div>
-        <div class="footer">Made with ❤️ • GitHub API</div>
+        <div class="footer">UPLOADER_GITHUB · GitHub Contents API</div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // Event listener untuk menampilkan nama file
-        document.getElementById('zipFile').addEventListener('change', function(e) {
-            const fileName = this.files[0]?.name || 'Tidak ada file';
-            const fileSize = this.files[0]?.size ? (this.files[0].size / 1024 / 1024).toFixed(2) + ' MB' : '';
-            document.getElementById('fileName').textContent = `📎 ${fileName} ${fileSize}`;
+<script>
+  document.addEventListener('touchmove', function(e){ if(e.touches.length>1) e.preventDefault(); }, { passive:false });
+  document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', function(e){
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) e.preventDefault();
+    lastTouchEnd = now;
+  }, false);
+  document.addEventListener('dblclick', function(e){ e.preventDefault(); });
+  document.addEventListener('wheel', function(e){ if(e.ctrlKey) e.preventDefault(); }, { passive:false });
+  document.addEventListener('keydown', function(e){
+    if((e.ctrlKey||e.metaKey) && (e.key==='+'||e.key==='-'||e.key==='0')) e.preventDefault();
+  });
+
+  function runBoot(){
+    const boot = document.getElementById('boot');
+    const wrap = document.getElementById('wrap');
+    const lines = boot.querySelectorAll('.ln');
+    lines.forEach((ln, i) => {
+      setTimeout(() => {
+        ln.innerHTML = ln.dataset.text;
+        ln.classList.add('show');
+      }, i * 260);
+    });
+    const totalDelay = lines.length * 260 + 380;
+    setTimeout(() => {
+      boot.classList.add('hide');
+      wrap.classList.add('in');
+    }, totalDelay);
+  }
+  runBoot();
+
+  const cmdOwner = document.getElementById('cmdOwner');
+  const cmdRepo  = document.getElementById('cmdRepo');
+  const cmdMode  = document.getElementById('cmdMode');
+  const cmdFile  = document.getElementById('cmdFile');
+
+  document.getElementById('owner').addEventListener('input', e => {
+    cmdOwner.textContent = e.target.value.trim() || '...';
+  });
+  document.getElementById('repo').addEventListener('input', e => {
+    cmdRepo.textContent = e.target.value.trim() || '...';
+  });
+  document.getElementById('mode').addEventListener('change', e => {
+    cmdMode.textContent = e.target.value;
+  });
+  document.getElementById('zipFile').addEventListener('change', function(){
+    const f = this.files[0];
+    const fileName = f?.name || 'Tidak ada file';
+    const fileSize = f?.size ? (f.size / 1024 / 1024).toFixed(2) + ' MB' : '';
+    document.getElementById('fileName').textContent = f ? `📎 ${fileName}  ${fileSize}` : '';
+    cmdFile.textContent = f ? './' + f.name : './archive.zip';
+  });
+
+  const logEl = document.getElementById('log');
+  function logLine(html){
+    const p = document.createElement('p');
+    p.innerHTML = html;
+    logEl.appendChild(p);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  function clearLog(){ logEl.innerHTML = ''; }
+
+  function isBinaryFile(filename) {
+    const binaryExtensions = [
+      '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.webp',
+      '.pdf', '.zip', '.rar', '.7z', '.tar', '.gz',
+      '.exe', '.dll', '.so', '.dylib', '.bin', '.dat',
+      '.mp3', '.mp4', '.avi', '.mov', '.mkv', '.flv',
+      '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+      '.woff', '.woff2', '.ttf', '.eot', '.otf'
+    ];
+    const lowerName = filename.toLowerCase();
+    return binaryExtensions.some(ext => lowerName.endsWith(ext));
+  }
+
+  // ====== FUNGSI ENCODE YANG BENER ======
+  function stringToBase64(str) {
+    // pake TextEncoder biar aman buat Unicode
+    const encoder = new TextEncoder();
+    const uint8 = encoder.encode(str);
+    let binary = '';
+    for (let i = 0; i < uint8.length; i++) {
+      binary += String.fromCharCode(uint8[i]);
+    }
+    return btoa(binary);
+  }
+
+  function arrayBufferToBase64(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    const chunkSize = 8192;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+      binary += String.fromCharCode.apply(null, chunk);
+    }
+    return btoa(binary);
+  }
+
+  async function uploadFileToGitHub(token, owner, repo, filePath, content) {
+    const pathParts = filePath.split('/').map(part => encodeURIComponent(part));
+    const encodedPath = pathParts.join('/');
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}`;
+
+    let sha = null;
+    try {
+      const checkRes = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
+      if (checkRes.ok) { 
+        const data = await checkRes.json(); 
+        sha = data.sha; 
+      }
+    } catch (e) {}
+
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: { 
+        'Authorization': `token ${token}`, 
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify({
+        message: sha ? `Update ${filePath}` : `Add ${filePath}`,
+        content: content,
+        sha: sha
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Upload gagal');
+    }
+    return await response.json();
+  }
+
+  async function processZipFile(zipBuffer, token, owner, repo, mode, onProgress) {
+    const JSZip = window.JSZip;
+    const zip = await JSZip.loadAsync(zipBuffer);
+
+    const fileList = [];
+    zip.forEach((relativePath, zipEntry) => {
+      if (!zipEntry.dir && relativePath && relativePath.trim() !== '') {
+        fileList.push({ path: relativePath, entry: zipEntry });
+      }
+    });
+
+    fileList.sort((a, b) => a.path.localeCompare(b.path));
+
+    if (fileList.length === 0) {
+      throw new Error('Tidak ada file yang valid dalam ZIP');
+    }
+
+    logLine(`<span class="gray">info:</span> ditemukan ${fileList.length} file dalam ZIP`);
+
+    if (mode === 'new') {
+      logLine(`<span class="gray">remote:</span> membuat repository <span class="path">${repo}</span> ...`);
+      
+      try {
+        const checkRepo = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+          headers: { 'Authorization': `token ${token}` }
         });
+        if (checkRepo.ok) {
+          logLine(`<span class="gray">remote:</span> repository <span class="path">${repo}</span> sudah ada, menggunakan mode existing`);
+        } else {
+          const response = await fetch('https://api.github.com/user/repos', {
+            method: 'POST',
+            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              name: repo, 
+              private: false, 
+              auto_init: false,
+              description: 'Uploaded via Uploader GitHub'
+            })
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            logLine(`<span class="bad">remote: gagal membuat repository</span>`);
+            throw new Error(errorData.message || 'Gagal membuat repository');
+          }
+          logLine(`<span class="ok">remote: repository dibuat ✓</span>`);
+        }
+      } catch (error) {
+        logLine(`<span class="bad">remote: error checking repository</span>`);
+        throw error;
+      }
+    }
 
-        // Cek file binary
-        function isBinaryFile(filename) {
-            const binaryExtensions = [
-                '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.webp',
-                '.pdf', '.zip', '.rar', '.7z', '.tar', '.gz',
-                '.exe', '.dll', '.so', '.dylib', '.bin', '.dat',
-                '.mp3', '.mp4', '.avi', '.mov', '.mkv', '.flv',
-                '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
-                '.woff', '.woff2', '.ttf', '.eot', '.otf'
-            ];
-            const lowerName = filename.toLowerCase();
-            return binaryExtensions.some(ext => lowerName.endsWith(ext));
+    let uploaded = 0, failed = 0;
+    const results = [];
+
+    const MAX_FILES = 100;
+    if (fileList.length > MAX_FILES) {
+      logLine(`<span class="gray">warning:</span> ${fileList.length} file ditemukan, hanya ${MAX_FILES} file pertama yang akan diupload`);
+    }
+
+    const filesToUpload = fileList.slice(0, MAX_FILES);
+
+    for (let i = 0; i < filesToUpload.length; i++) {
+      const { path: filePath, entry } = filesToUpload[i];
+      try {
+        const isBinary = isBinaryFile(filePath);
+        let content;
+        
+        if (isBinary) {
+          const arrayBuf = await entry.async('arraybuffer');
+          content = arrayBufferToBase64(arrayBuf);
+        } else {
+          const text = await entry.async('string');
+          // ===== PAKE FUNGSI ENCODE YANG BENER =====
+          content = stringToBase64(text);
         }
 
-        // Upload file ke GitHub
-        async function uploadFileToGitHub(token, owner, repo, filePath, content) {
-            const encodedPath = filePath.split('/').map(seg => encodeURIComponent(seg)).join('/');
-            const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}`;
-            
-            // Cek file existing
-            let sha = null;
-            try {
-                const checkRes = await fetch(url, {
-                    headers: { 'Authorization': `token ${token}` }
-                });
-                if (checkRes.ok) {
-                    const data = await checkRes.json();
-                    sha = data.sha;
-                }
-            } catch (e) {}
-
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: sha ? `Update ${filePath}` : `Add ${filePath}`,
-                    content: content,
-                    sha: sha
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Upload gagal');
-            }
-
-            return await response.json();
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 200));
         }
 
-        // Proses ZIP
-        async function processZipFile(zipBuffer, token, owner, repo, mode, onProgress) {
-            const JSZip = window.JSZip;
-            const zip = await JSZip.loadAsync(zipBuffer);
-            
-            const fileList = [];
-            zip.forEach((relativePath, zipEntry) => {
-                if (!zipEntry.dir) {
-                    fileList.push({ path: relativePath, entry: zipEntry });
-                }
-            });
+        await uploadFileToGitHub(token, owner, repo, filePath, content);
+        uploaded++;
+        results.push({ path: filePath, status: 'success' });
+        logLine(`<span class="ok">✓</span> <span class="path">${filePath}</span> <span class="gray">→ committed</span>`);
 
-            if (fileList.length === 0) {
-                throw new Error('Tidak ada file dalam ZIP');
-            }
+        const progress = Math.round(((i + 1) / filesToUpload.length) * 100);
+        onProgress(progress, filesToUpload.length);
 
-            // Buat repo baru jika mode new
-            if (mode === 'new') {
-                const response = await fetch('https://api.github.com/user/repos', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name: repo,
-                        private: false,
-                        auto_init: false
-                    })
-                });
+      } catch (err) {
+        failed++;
+        results.push({ path: filePath, status: 'failed', error: err.message });
+        logLine(`<span class="bad">✗ ${filePath} — ${err.message}</span>`);
+      }
+    }
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Gagal membuat repository');
-                }
-            }
+    if (fileList.length > MAX_FILES) {
+      logLine(`<span class="gray">warning:</span> ${fileList.length - MAX_FILES} file tidak diupload (batas maksimum ${MAX_FILES})`);
+    }
 
-            let uploaded = 0;
-            let failed = 0;
-            const results = [];
+    return { uploaded, failed, total: fileList.length, processed: filesToUpload.length, results };
+  }
 
-            for (let i = 0; i < fileList.length; i++) {
-                const { path: filePath, entry } = fileList[i];
-                try {
-                    const isBinary = isBinaryFile(filePath);
-                    let content;
-                    
-                    if (isBinary) {
-                        const arrayBuf = await entry.async('arraybuffer');
-                        // Convert ArrayBuffer ke Base64
-                        const bytes = new Uint8Array(arrayBuf);
-                        let binary = '';
-                        for (let j = 0; j < bytes.length; j++) {
-                            binary += String.fromCharCode(bytes[j]);
-                        }
-                        content = btoa(binary);
-                    } else {
-                        const text = await entry.async('string');
-                        content = btoa(text);
-                    }
+  document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-                    await uploadFileToGitHub(token, owner, repo, filePath, content);
-                    uploaded++;
-                    results.push({ path: filePath, status: 'success' });
+    const token = document.getElementById('token').value.trim();
+    const owner = document.getElementById('owner').value.trim();
+    const repo  = document.getElementById('repo').value.trim();
+    const mode  = document.getElementById('mode').value;
+    const fileInput = document.getElementById('zipFile');
+    const file = fileInput.files[0];
 
-                    // Update progress
-                    if ((i + 1) % 3 === 0 || i === fileList.length - 1) {
-                        onProgress(uploaded, fileList.length);
-                    }
+    if (!token || !owner || !repo || !file) { 
+      alert('Semua field harus diisi!'); 
+      return; 
+    }
+    if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+      alert('Token GitHub tidak valid! Harus dimulai dengan ghp_ atau github_pat_'); 
+      return; 
+    }
+    if (file.size > 50 * 1024 * 1024) { 
+      alert('File terlalu besar! Maksimal 50MB'); 
+      return; 
+    }
 
-                } catch (err) {
-                    failed++;
-                    results.push({ path: filePath, status: 'failed', error: err.message });
-                }
-            }
+    const submitBtn   = document.getElementById('submitBtn');
+    const progressDiv = document.getElementById('progress');
+    const progressFill= document.getElementById('progressFill');
+    const progressText= document.getElementById('progressText');
+    const statusText  = document.getElementById('statusText');
+    const resultDiv   = document.getElementById('result');
 
-            return { uploaded, failed, total: fileList.length, results };
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Uploading...';
+    progressDiv.style.display = 'block';
+    resultDiv.style.display = 'none';
+    progressFill.style.width = '0%';
+    progressText.textContent = '0%';
+    statusText.textContent = '📤 Membaca file ZIP...';
+    clearLog();
+    logLine(`<span class="gray">$</span> membaca <span class="path">${file.name}</span> ...`);
+
+    try {
+      const zipBuffer = await file.arrayBuffer();
+
+      const result = await processZipFile(zipBuffer, token, owner, repo, mode, (progress, total) => {
+        progressFill.style.width = progress + '%';
+        progressText.textContent = progress + '%';
+        statusText.textContent = `📤 Uploading ${Math.round(progress)}% (${Math.round(progress * total / 100)}/${total} files)`;
+      });
+
+      if (result.uploaded > 0) {
+        resultDiv.className = 'success';
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `
+          <strong>✅ Upload Berhasil!</strong><br>
+          📁 Total file dalam ZIP: ${result.total}<br>
+          ✅ Berhasil diupload: ${result.uploaded}<br>
+          ${result.failed > 0 ? `❌ Gagal: ${result.failed}<br>` : ''}
+          ${result.total > result.processed ? `⚠️ ${result.total - result.processed} file tidak diproses (batas maksimum 100 file)<br>` : ''}
+          🔗 <a href="https://github.com/${owner}/${repo}" target="_blank">Lihat Repository</a>
+        `;
+        if (result.failed > 0) {
+          const failedFiles = result.results.filter(r => r.status === 'failed');
+          let failedList = '<br><br><strong>File gagal:</strong><br>';
+          failedFiles.slice(0, 5).forEach(f => { failedList += `▸ ${f.path}<br>`; });
+          if (failedFiles.length > 5) failedList += `▸ dan ${failedFiles.length - 5} file lainnya`;
+          resultDiv.innerHTML += failedList;
         }
+        progressFill.style.width = '100%';
+        progressText.textContent = '100%';
+        statusText.textContent = '✅ Selesai!';
+        logLine(`<span class="ok">remote: selesai. ${result.uploaded}/${result.processed} file ter-push.</span>`);
+      } else {
+        throw new Error('Tidak ada file yang berhasil diupload');
+      }
 
-        // Handle form submit
-        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const token = document.getElementById('token').value.trim();
-            const owner = document.getElementById('owner').value.trim();
-            const repo = document.getElementById('repo').value.trim();
-            const mode = document.getElementById('mode').value;
-            const fileInput = document.getElementById('zipFile');
-            const file = fileInput.files[0];
-
-            // Validasi input
-            if (!token || !owner || !repo || !file) {
-                alert('Semua field harus diisi!');
-                return;
-            }
-
-            if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
-                alert('Token GitHub tidak valid! Harus dimulai dengan ghp_ atau github_pat_');
-                return;
-            }
-
-            if (file.size > 50 * 1024 * 1024) {
-                alert('File terlalu besar! Maksimal 50MB');
-                return;
-            }
-
-            // UI elements
-            const submitBtn = document.getElementById('submitBtn');
-            const progressDiv = document.getElementById('progress');
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-            const statusText = document.getElementById('statusText');
-            const resultDiv = document.getElementById('result');
-
-            // Reset UI
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Uploading...';
-            progressDiv.style.display = 'block';
-            resultDiv.style.display = 'none';
-            progressFill.style.width = '0%';
-            progressText.textContent = '0%';
-            statusText.textContent = '📤 Membaca file ZIP...';
-
-            try {
-                // Baca file ZIP
-                const zipBuffer = await file.arrayBuffer();
-                
-                // Proses upload
-                const result = await processZipFile(
-                    zipBuffer, 
-                    token, 
-                    owner, 
-                    repo, 
-                    mode,
-                    (uploaded, total) => {
-                        const percent = Math.round((uploaded / total) * 100);
-                        progressFill.style.width = percent + '%';
-                        progressText.textContent = percent + '%';
-                        statusText.textContent = `📤 Uploading ${uploaded}/${total} files`;
-                    }
-                );
-
-                // Tampilkan hasil
-                if (result.uploaded > 0) {
-                    resultDiv.className = 'success';
-                    resultDiv.style.display = 'block';
-                    resultDiv.innerHTML = `
-                        <strong>✅ Upload Berhasil!</strong><br>
-                        📁 Total file: ${result.total}<br>
-                        ✅ Berhasil: ${result.uploaded}<br>
-                        ${result.failed > 0 ? `❌ Gagal: ${result.failed}<br>` : ''}
-                        🔗 <a href="https://github.com/${owner}/${repo}" target="_blank">Lihat Repository</a>
-                    `;
-                    
-                    // Tampilkan file yang gagal
-                    if (result.failed > 0) {
-                        const failedFiles = result.results.filter(r => r.status === 'failed');
-                        let failedList = '<br><br><strong>File gagal:</strong><br>';
-                        failedFiles.slice(0, 5).forEach(f => {
-                            failedList += `▸ ${f.path}<br>`;
-                        });
-                        if (failedFiles.length > 5) {
-                            failedList += `▸ dan ${failedFiles.length - 5} file lainnya`;
-                        }
-                        resultDiv.innerHTML += failedList;
-                    }
-                    
-                    progressFill.style.width = '100%';
-                    progressText.textContent = '100%';
-                    statusText.textContent = '✅ Selesai!';
-                } else {
-                    throw new Error('Tidak ada file yang berhasil diupload');
-                }
-
-            } catch (error) {
-                console.error('Error:', error);
-                resultDiv.className = 'error';
-                resultDiv.style.display = 'block';
-                resultDiv.innerHTML = `❌ Error: ${error.message}`;
-                progressFill.style.width = '0%';
-                progressText.textContent = '0%';
-                statusText.textContent = '❌ Gagal';
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = '🚀 Upload ke GitHub';
-            }
-        });
-    </script>
+    } catch (error) {
+      console.error('Error:', error);
+      resultDiv.className = 'error';
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `❌ Error: ${error.message}`;
+      progressFill.style.width = '0%';
+      progressText.textContent = '0%';
+      statusText.textContent = '❌ Gagal';
+      logLine(`<span class="bad">fatal: ${error.message}</span>`);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '▶ Jalankan Upload';
+    }
+  });
+</script>
 </body>
 </html>
