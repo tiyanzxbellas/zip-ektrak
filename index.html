@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub ZIP Uploader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        input,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .file-input {
+            border: 2px dashed #ccc;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .file-input:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .file-input input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .file-name {
+            margin-top: 10px;
+            color: #667eea;
+            font-weight: 500;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #progress {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .mode-hint {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
+        .loading-dots::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0% {
+                content: '';
+            }
+            25% {
+                content: '.';
+            }
+            50% {
+                content: '..';
+            }
+            75% {
+                content: '...';
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📦 GitHub Uploader</h1>
+        <p class="subtitle">Upload ZIP langsung ke GitHub via API</p>
+
+        <form id="uploadForm">
+            <div class="form-group">
+                <label>🔑 GitHub Token</label>
+                <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxx" required>
+                <div class="mode-hint">Buat di Settings → Developer settings → Personal access tokens</div>
+            </div>
+
+            <div class="form-group">
+                <label>👤 Username</label>
+                <input type="text" id="owner" placeholder="username_github" required>
+            </div>
+
+            <div class="form-group">
+                <label>📁 Nama Repository</label>
+                <input type="text" id="repo" placeholder="my-repo" required>
+            </div>
+
+            <div class="form-group">
+                <label>🔄 Mode</label>
+                <select id="mode">
+                    <option value="new">Buat Repository Baru</option>
+                    <option value="existing">Upload ke Repository Existing</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>📤 Pilih File ZIP</label>
+                <div class="file-input">
+                    <div>📁 Drag & drop atau klik untuk pilih file</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 5px;">Hanya file .ZIP (Max 50MB)</div>
+                    <input type="file" id="zipFile" accept=".zip" required>
+                </div>
+                <div class="file-name" id="fileName"></div>
+            </div>
+
+            <button type="submit" id="submitBtn">🚀 Upload ke GitHub</button>
+        </form>
+
+        <div id="progress">
+            <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                <span id="statusText">Memproses...</span>
+                <span id="progressText">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div id="result"></div>
+        <div class="footer">Made with ❤️ • Vercel Serverless</div>
+    </div>
+
+    <script>
+        document.getElementById('zipFile').addEventListener('change', function(e) {
+            const fileName = this.files[0]?.name || 'Tidak ada file';
+            const fileSize = this.files[0]?.size ? (this.files[0].size / 1024 / 1024).toFixed(2) + ' MB' : '';
+            document.getElementById('fileName').textContent = `📎 ${fileName} ${fileSize}`;
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const token = document.getElementById('token').value;
+            const owner = document.getElementById('owner').value;
+            const repo = document.getElementById('repo').value;
+            const mode = document.getElementById('mode').value;
+            const fileInput = document.getElementById('zipFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Pilih file ZIP dulu!');
+                return;
+            }
+
+            // Validasi token
+            if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+                alert('Token GitHub tidak valid! Harus dimulai dengan ghp_ atau github_pat_');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('token', token);
+            formData.append('owner', owner);
+            formData.append('repo', repo);
+            formData.append('mode', mode);
+            formData.append('zipFile', file);
+
+            const submitBtn = document.getElementById('submitBtn');
+            const progressDiv = document.getElementById('progress');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const statusText = document.getElementById('statusText');
+            const resultDiv = document.getElementById('result');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Uploading...';
+            progressDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            progressFill.style.width = '0%';
+            progressText.textContent = '0%';
+            statusText.textContent = '📤 Mengirim file...';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let result = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+                                if (data.progress) {
+                                    const percent = Math.round((data.uploaded / data.total) * 100);
+                                    progressFill.style.width = percent + '%';
+                                    progressText.textContent = percent + '%';
+                                    statusText.textContent = `📤 Uploading ${data.uploaded}/${data.total} files`;
+                                }
+                                if (data.message) {
+                                    statusText.textContent = data.message;
+                                }
+                                if (data.done) {
+                                    result = data;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+
+                if (result.success) {
+                    resultDiv.className = 'success';
+                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML = `
+                                <strong>✅ Upload Berhasil!</strong><br>
+                                📁 Total file: ${result.total}<br>
+                                ✅ Berhasil: ${result.uploaded}<br>
+                                ${result.failed > 0 ? `❌ Gagal: ${result.failed}<br>` : ''}
+                                🔗 <a href="https://github.com/${owner}/${repo}" target="_blank">Lihat Repository</a>
+                            `;
+                    progressFill.style.width = '100%';
+                    progressText.textContent = '100%';
+                    statusText.textContent = '✅ Selesai!';
+                } else {
+                    throw new Error(result.message || 'Upload gagal');
+                }
+
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `❌ Error: ${error.message}`;
+                progressFill.style.width = '0%';
+                progressText.textContent = '0%';
+                statusText.textContent = '❌ Gagal';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Upload ke GitHub';
+            }
+        });
+    </script>
+</body>
+</html>
