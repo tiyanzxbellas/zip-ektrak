@@ -260,6 +260,29 @@
   button:active:not(:disabled){ transform:translateY(0); }
   button:disabled{ opacity:.55; cursor:not-allowed; }
 
+  .btn-group {
+    display:flex;
+    gap:10px;
+    margin-top:6px;
+  }
+  .btn-group button {
+    flex:1;
+  }
+  .btn-danger {
+    background:linear-gradient(135deg, #5a1a1a, #3d1212) !important;
+    border-color:var(--red) !important;
+  }
+  .btn-danger:hover:not(:disabled){
+    box-shadow:0 8px 24px -8px rgba(255,92,114,0.45) !important;
+  }
+  .btn-secondary {
+    background:linear-gradient(135deg, var(--line), var(--line-soft)) !important;
+    border-color:var(--text-dim) !important;
+  }
+  .btn-secondary:hover:not(:disabled){
+    box-shadow:0 8px 24px -8px rgba(95,140,124,0.45) !important;
+  }
+
   #progress{ margin-top:20px; display:none; }
   .progress-head{
     display:flex; justify-content:space-between;
@@ -308,11 +331,84 @@
   }
   .success{ background:rgba(39,255,166,0.08); border:1px solid var(--green-dim); color:var(--text); }
   .error{ background:rgba(255,92,114,0.08); border:1px solid var(--red); color:#ffd2d8; }
+  .info{ background:rgba(52,195,255,0.08); border:1px solid var(--blue-dim); color:var(--text); }
   #result a{ color:var(--blue); }
 
   .footer{
     margin-top:18px; text-align:center; color:#2c5446; font-size:10.5px;
     letter-spacing:.04em;
+  }
+
+  /* Repository List */
+  .repo-list {
+    margin-top:20px;
+    display:none;
+  }
+  .repo-list.active { display:block; }
+  .repo-item {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 14px;
+    background:#020705;
+    border:1px solid var(--line);
+    border-radius:8px;
+    margin-bottom:8px;
+  }
+  .repo-item .repo-info {
+    flex:1;
+  }
+  .repo-item .repo-name {
+    color:var(--text);
+    font-weight:600;
+    font-size:13px;
+  }
+  .repo-item .repo-desc {
+    color:var(--text-dim);
+    font-size:11px;
+    margin-top:2px;
+  }
+  .repo-item .repo-actions {
+    display:flex;
+    gap:8px;
+  }
+  .repo-item .repo-actions button {
+    padding:6px 12px;
+    font-size:11px;
+    margin:0;
+    width:auto;
+  }
+  .btn-sm {
+    padding:6px 12px !important;
+    font-size:11px !important;
+    margin:0 !important;
+    width:auto !important;
+  }
+  .btn-sm-danger {
+    background:linear-gradient(135deg, #5a1a1a, #3d1212) !important;
+    border-color:var(--red) !important;
+    padding:6px 12px !important;
+    font-size:11px !important;
+    margin:0 !important;
+    width:auto !important;
+  }
+  .btn-sm-danger:hover:not(:disabled){
+    box-shadow:0 8px 24px -8px rgba(255,92,114,0.45) !important;
+  }
+  .btn-sm-secondary {
+    background:linear-gradient(135deg, var(--line), var(--line-soft)) !important;
+    border-color:var(--text-dim) !important;
+    padding:6px 12px !important;
+    font-size:11px !important;
+    margin:0 !important;
+    width:auto !important;
+  }
+
+  .loading-text {
+    color:var(--text-dim);
+    text-align:center;
+    padding:20px;
+    font-size:12px;
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -359,7 +455,7 @@
           <div class="form-group">
             <label><span class="flagname">--token</span> Personal Access Token</label>
             <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxx" required>
-            <div class="hint">Settings → Developer settings → Personal access tokens (scope: repo)</div>
+            <div class="hint">Settings → Developer settings → Personal access tokens (scope: repo, delete_repo)</div>
           </div>
 
           <div class="form-group">
@@ -391,8 +487,16 @@
             <div class="file-name" id="fileName"></div>
           </div>
 
-          <button type="submit" id="submitBtn">▶ Jalankan Upload</button>
+          <div class="btn-group">
+            <button type="submit" id="submitBtn">▶ Jalankan Upload</button>
+            <button type="button" id="listRepoBtn" class="btn-secondary">📂 List Repo</button>
+          </div>
         </form>
+
+        <div id="repoListContainer" class="repo-list">
+          <h3 style="font-size:14px; margin-bottom:12px; color:var(--text-dim);">📁 Repository Anda</h3>
+          <div id="repoList"></div>
+        </div>
 
         <div id="progress">
           <div class="progress-head">
@@ -486,9 +590,7 @@
     return binaryExtensions.some(ext => lowerName.endsWith(ext));
   }
 
-  // ====== FUNGSI ENCODE YANG BENER ======
   function stringToBase64(str) {
-    // pake TextEncoder biar aman buat Unicode
     const encoder = new TextEncoder();
     const uint8 = encoder.encode(str);
     let binary = '';
@@ -616,7 +718,6 @@
           content = arrayBufferToBase64(arrayBuf);
         } else {
           const text = await entry.async('string');
-          // ===== PAKE FUNGSI ENCODE YANG BENER =====
           content = stringToBase64(text);
         }
 
@@ -645,6 +746,141 @@
 
     return { uploaded, failed, total: fileList.length, processed: filesToUpload.length, results };
   }
+
+  // ===== LIST REPOSITORIES =====
+  async function listRepositories(token, owner) {
+    const url = `https://api.github.com/users/${owner}/repos?per_page=100&sort=updated`;
+    const response = await fetch(url, {
+      headers: { 'Authorization': `token ${token}` }
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Gagal mengambil daftar repository');
+    }
+    return await response.json();
+  }
+
+  // ===== DELETE REPOSITORY =====
+  async function deleteRepository(token, owner, repo) {
+    const url = `https://api.github.com/repos/${owner}/${repo}`;
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: { 'Authorization': `token ${token}` }
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Gagal menghapus repository');
+    }
+    return true;
+  }
+
+  // ===== RENDER REPO LIST =====
+  function renderRepoList(repos, token, owner) {
+    const container = document.getElementById('repoList');
+    const repoListContainer = document.getElementById('repoListContainer');
+    
+    if (!repos || repos.length === 0) {
+      container.innerHTML = '<div class="loading-text">Tidak ada repository ditemukan</div>';
+      repoListContainer.classList.add('active');
+      return;
+    }
+
+    let html = '';
+    repos.forEach(repo => {
+      html += `
+        <div class="repo-item" data-repo="${repo.name}">
+          <div class="repo-info">
+            <div class="repo-name">${repo.name}</div>
+            <div class="repo-desc">${repo.description || 'Tidak ada deskripsi'} • ${new Date(repo.updated_at).toLocaleDateString('id-ID')}</div>
+          </div>
+          <div class="repo-actions">
+            <button class="btn-sm-secondary" onclick="window.open('${repo.html_url}', '_blank')">🔗 Lihat</button>
+            <button class="btn-sm-danger" onclick="confirmDeleteRepo('${repo.name}')">🗑️ Hapus</button>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+    repoListContainer.classList.add('active');
+
+    // Simpan data untuk digunakan di fungsi delete
+    window._repoData = { token, owner };
+  }
+
+  // ===== CONFIRM DELETE =====
+  window.confirmDeleteRepo = function(repoName) {
+    if (confirm(`⚠️ Yakin ingin menghapus repository "${repoName}"?\n\nAksi ini tidak bisa dibatalkan!`)) {
+      deleteRepoAction(repoName);
+    }
+  };
+
+  async function deleteRepoAction(repoName) {
+    const { token, owner } = window._repoData || {};
+    if (!token || !owner) {
+      alert('Token atau owner tidak ditemukan');
+      return;
+    }
+
+    const resultDiv = document.getElementById('result');
+    const logEl = document.getElementById('log');
+    
+    try {
+      logLine(`<span class="gray">remote:</span> menghapus repository <span class="path">${repoName}</span> ...`);
+      
+      await deleteRepository(token, owner, repoName);
+      
+      resultDiv.className = 'success';
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `✅ Repository <strong>${repoName}</strong> berhasil dihapus!`;
+      
+      logLine(`<span class="ok">remote: repository ${repoName} berhasil dihapus ✓</span>`);
+      
+      // Refresh list
+      await loadRepositories();
+      
+    } catch (error) {
+      resultDiv.className = 'error';
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `❌ Gagal menghapus repository: ${error.message}`;
+      logLine(`<span class="bad">remote: gagal menghapus ${repoName} — ${error.message}</span>`);
+    }
+  }
+
+  async function loadRepositories() {
+    const token = document.getElementById('token').value.trim();
+    const owner = document.getElementById('owner').value.trim();
+    
+    if (!token || !owner) {
+      alert('Masukkan Token dan Owner terlebih dahulu!');
+      return;
+    }
+
+    const container = document.getElementById('repoList');
+    const repoListContainer = document.getElementById('repoListContainer');
+    const resultDiv = document.getElementById('result');
+    
+    container.innerHTML = '<div class="loading-text">⏳ Memuat daftar repository...</div>';
+    repoListContainer.classList.add('active');
+    resultDiv.style.display = 'none';
+
+    try {
+      const repos = await listRepositories(token, owner);
+      renderRepoList(repos, token, owner);
+      
+      resultDiv.className = 'info';
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `📊 ${repos.length} repository ditemukan`;
+      
+    } catch (error) {
+      container.innerHTML = `<div class="loading-text" style="color:var(--red);">❌ Error: ${error.message}</div>`;
+      resultDiv.className = 'error';
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `❌ Error: ${error.message}`;
+    }
+  }
+
+  // ===== EVENT LISTENERS =====
+  document.getElementById('listRepoBtn').addEventListener('click', loadRepositories);
 
   document.getElementById('uploadForm').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -675,11 +911,13 @@
     const progressText= document.getElementById('progressText');
     const statusText  = document.getElementById('statusText');
     const resultDiv   = document.getElementById('result');
+    const repoListContainer = document.getElementById('repoListContainer');
 
     submitBtn.disabled = true;
     submitBtn.textContent = '⏳ Uploading...';
     progressDiv.style.display = 'block';
     resultDiv.style.display = 'none';
+    repoListContainer.classList.remove('active');
     progressFill.style.width = '0%';
     progressText.textContent = '0%';
     statusText.textContent = '📤 Membaca file ZIP...';
