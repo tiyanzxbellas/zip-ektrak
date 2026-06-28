@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Uploader GitHub Pro</title>
+<title>Uploader GitHub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,7 +22,6 @@
     --text:#d9fbec;
     --text-dim:#5f8c7c;
     --red:#ff5c72;
-    --orange:#ffa64d;
     --font:'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
   }
 
@@ -166,7 +165,6 @@
     margin-bottom:18px;
   }
   .subtitle b{ color:var(--blue); font-weight:600; }
-  .subtitle .highlight{ color:var(--orange); font-weight:700; }
 
   .cmd-preview{
     background:#020705;
@@ -289,8 +287,6 @@
   .progress-head{
     display:flex; justify-content:space-between;
     font-size:11.5px; color:var(--text-dim); margin-bottom:8px;
-    flex-wrap:wrap;
-    gap:4px;
   }
   #statusText{ color:var(--blue); }
   #progressText{ color:var(--green); font-weight:700; }
@@ -315,7 +311,7 @@
     border:1px solid var(--line-soft);
     border-radius:8px;
     padding:10px 12px;
-    height:150px;
+    height:120px;
     overflow-y:auto;
     font-size:11px;
     line-height:1.75;
@@ -327,8 +323,6 @@
   .log .ok{ color:var(--green); }
   .log .bad{ color:var(--red); }
   .log .path{ color:var(--blue); }
-  .log .orange{ color:var(--orange); }
-  .log .batch{ color:#a78bfa; }
 
   #result{
     margin-top:18px; padding:14px 16px; border-radius:8px;
@@ -338,7 +332,6 @@
   .success{ background:rgba(39,255,166,0.08); border:1px solid var(--green-dim); color:var(--text); }
   .error{ background:rgba(255,92,114,0.08); border:1px solid var(--red); color:#ffd2d8; }
   .info{ background:rgba(52,195,255,0.08); border:1px solid var(--blue-dim); color:var(--text); }
-  .warning{ background:rgba(255,166,77,0.08); border:1px solid var(--orange); color:#ffd8a8; }
   #result a{ color:var(--blue); }
 
   .footer{
@@ -418,17 +411,6 @@
     font-size:12px;
   }
 
-  .batch-info {
-    background:rgba(167,139,250,0.08);
-    border:1px solid #5b4b8c;
-    border-radius:6px;
-    padding:8px 12px;
-    margin-bottom:12px;
-    font-size:11px;
-    color:var(--text-dim);
-  }
-  .batch-info strong { color:#a78bfa; }
-
   @media (prefers-reduced-motion: reduce){
     *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
   }
@@ -441,7 +423,7 @@
   <div class="scanline"></div>
 
   <div id="boot">
-    <div class="ln" data-text="uploader_github_pro --init"></div>
+    <div class="ln" data-text="uploader_github --init"></div>
     <div class="ln" data-text="loading modules ... <span class='ok'>OK</span>"></div>
     <div class="ln" data-text="connecting api.github.com ... <span class='ok'>OK</span>"></div>
     <div class="ln" data-text="ready.<span class='caret'></span>"></div>
@@ -454,21 +436,18 @@
         <span class="dot d1"></span>
         <span class="dot d2"></span>
         <span class="dot d3"></span>
-        <span>uploader-github-pro@local: ~</span>
+        <span>uploader-github@local: ~</span>
       </div>
 
       <div class="body-scroll">
-        <h1><span class="pfx">&gt;</span> Uploader GitHub <span style="font-size:12px;color:var(--orange);">PRO</span></h1>
-        <p class="subtitle">
-          Push isi file <b>.zip</b> langsung ke repository GitHub via API — support <span class="highlight">hingga 500 file</span> dengan batch processing
-        </p>
+        <h1><span class="pfx">&gt;</span> Uploader GitHub</h1>
+        <p class="subtitle">Push isi file <b>.zip</b> langsung ke repository GitHub lewat API — tanpa git, tanpa terminal asli.</p>
 
         <div class="cmd-preview" id="cmdPreview">
-          <span class="dollar">$</span> <span class="cmd">gh-upload-pro</span>
+          <span class="dollar">$</span> <span class="cmd">gh-upload</span>
           <span class="flag">--owner</span>=<span class="val" id="cmdOwner">...</span>
           <span class="flag">--repo</span>=<span class="val" id="cmdRepo">...</span>
           <span class="flag">--mode</span>=<span class="val" id="cmdMode">new</span>
-          <span class="flag">--max</span>=<span class="val" id="cmdMax">500</span>
           <span class="val" id="cmdFile">./archive.zip</span><span class="cursor"></span>
         </div>
 
@@ -498,18 +477,6 @@
           </div>
 
           <div class="form-group">
-            <label><span class="flagname">--max-files</span> Maksimal File</label>
-            <select id="maxFiles">
-              <option value="100">100 file (cepat)</option>
-              <option value="200">200 file</option>
-              <option value="300">300 file</option>
-              <option value="400">400 file</option>
-              <option value="500" selected>500 file (maksimal)</option>
-            </select>
-            <div class="hint">⚠️ Semakin banyak file, semakin lama proses upload</div>
-          </div>
-
-          <div class="form-group">
             <label>Source File</label>
             <div class="file-input">
               <div class="ic">📦</div>
@@ -536,15 +503,12 @@
             <span id="statusText">Memproses...</span>
             <span id="progressText">0%</span>
           </div>
-          <div class="batch-info" id="batchInfo">
-            <strong>📊 Batch Processing:</strong> <span id="batchStatus">Menunggu...</span>
-          </div>
           <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
           <div class="log" id="log"></div>
         </div>
 
         <div id="result"></div>
-        <div class="footer">UPLOADER_GITHUB_PRO · Support 500 File · Batch Processing</div>
+        <div class="footer">UPLOADER_GITHUB · GitHub Contents API</div>
       </div>
     </div>
   </div>
@@ -582,12 +546,10 @@
   }
   runBoot();
 
-  // ===== DOM REFS =====
   const cmdOwner = document.getElementById('cmdOwner');
   const cmdRepo  = document.getElementById('cmdRepo');
   const cmdMode  = document.getElementById('cmdMode');
   const cmdFile  = document.getElementById('cmdFile');
-  const cmdMax   = document.getElementById('cmdMax');
 
   document.getElementById('owner').addEventListener('input', e => {
     cmdOwner.textContent = e.target.value.trim() || '...';
@@ -597,9 +559,6 @@
   });
   document.getElementById('mode').addEventListener('change', e => {
     cmdMode.textContent = e.target.value;
-  });
-  document.getElementById('maxFiles').addEventListener('change', e => {
-    cmdMax.textContent = e.target.value;
   });
   document.getElementById('zipFile').addEventListener('change', function(){
     const f = this.files[0];
@@ -652,7 +611,6 @@
     return btoa(binary);
   }
 
-  // ===== UPLOAD FUNCTIONS =====
   async function uploadFileToGitHub(token, owner, repo, filePath, content) {
     const pathParts = filePath.split('/').map(part => encodeURIComponent(part));
     const encodedPath = pathParts.join('/');
@@ -687,8 +645,7 @@
     return await response.json();
   }
 
-  // ===== PROCESS ZIP WITH BATCH =====
-  async function processZipFileBatch(zipBuffer, token, owner, repo, mode, maxFiles, onProgress, onBatch) {
+  async function processZipFile(zipBuffer, token, owner, repo, mode, onProgress) {
     const JSZip = window.JSZip;
     const zip = await JSZip.loadAsync(zipBuffer);
 
@@ -707,13 +664,6 @@
 
     logLine(`<span class="gray">info:</span> ditemukan ${fileList.length} file dalam ZIP`);
 
-    // Batasi file
-    const filesToUpload = fileList.slice(0, maxFiles);
-    if (fileList.length > maxFiles) {
-      logLine(`<span class="orange">⚠️ warning:</span> ${fileList.length} file ditemukan, hanya ${maxFiles} file pertama yang akan diupload`);
-    }
-
-    // Buat repository jika mode new
     if (mode === 'new') {
       logLine(`<span class="gray">remote:</span> membuat repository <span class="path">${repo}</span> ...`);
       
@@ -731,7 +681,7 @@
               name: repo, 
               private: false, 
               auto_init: false,
-              description: 'Uploaded via Uploader GitHub Pro'
+              description: 'Uploaded via Uploader GitHub'
             })
           });
           if (!response.ok) {
@@ -747,80 +697,54 @@
       }
     }
 
-    // ===== BATCH PROCESSING =====
-    const BATCH_SIZE = 20; // Upload 20 file per batch
-    let uploaded = 0;
-    let failed = 0;
-    let totalProcessed = 0;
+    let uploaded = 0, failed = 0;
     const results = [];
-    const totalFiles = filesToUpload.length;
 
-    for (let batchStart = 0; batchStart < totalFiles; batchStart += BATCH_SIZE) {
-      const batchEnd = Math.min(batchStart + BATCH_SIZE, totalFiles);
-      const batch = filesToUpload.slice(batchStart, batchEnd);
-      const batchNum = Math.floor(batchStart / BATCH_SIZE) + 1;
-      const totalBatches = Math.ceil(totalFiles / BATCH_SIZE);
+    const MAX_FILES = 100;
+    if (fileList.length > MAX_FILES) {
+      logLine(`<span class="gray">warning:</span> ${fileList.length} file ditemukan, hanya ${MAX_FILES} file pertama yang akan diupload`);
+    }
 
-      onBatch(batchNum, totalBatches, batch.length);
-      logLine(`<span class="batch">📦 batch ${batchNum}/${totalBatches}</span> <span class="gray">(${batch.length} file)</span>`);
+    const filesToUpload = fileList.slice(0, MAX_FILES);
 
-      // Upload files dalam batch secara paralel (maks 5 paralel)
-      const parallelLimit = 5;
-      for (let i = 0; i < batch.length; i += parallelLimit) {
-        const parallelBatch = batch.slice(i, i + parallelLimit);
-        const promises = parallelBatch.map(async ({ path: filePath, entry }) => {
-          try {
-            const isBinary = isBinaryFile(filePath);
-            let content;
-            
-            if (isBinary) {
-              const arrayBuf = await entry.async('arraybuffer');
-              content = arrayBufferToBase64(arrayBuf);
-            } else {
-              const text = await entry.async('string');
-              content = stringToBase64(text);
-            }
-
-            await uploadFileToGitHub(token, owner, repo, filePath, content);
-            uploaded++;
-            totalProcessed++;
-            results.push({ path: filePath, status: 'success' });
-            logLine(`<span class="ok">✓</span> <span class="path">${filePath}</span>`);
-
-            const progress = Math.round((totalProcessed / totalFiles) * 100);
-            onProgress(progress, totalFiles, uploaded, failed);
-
-          } catch (err) {
-            failed++;
-            totalProcessed++;
-            results.push({ path: filePath, status: 'failed', error: err.message });
-            logLine(`<span class="bad">✗ ${filePath} — ${err.message}</span>`);
-          }
-        });
-
-        await Promise.allSettled(promises);
+    for (let i = 0; i < filesToUpload.length; i++) {
+      const { path: filePath, entry } = filesToUpload[i];
+      try {
+        const isBinary = isBinaryFile(filePath);
+        let content;
         
-        // Delay antar paralel batch
-        if (i + parallelLimit < batch.length) {
-          await new Promise(resolve => setTimeout(resolve, 100));
+        if (isBinary) {
+          const arrayBuf = await entry.async('arraybuffer');
+          content = arrayBufferToBase64(arrayBuf);
+        } else {
+          const text = await entry.async('string');
+          content = stringToBase64(text);
         }
-      }
 
-      // Delay antar batch utama
-      if (batchEnd < totalFiles) {
-        logLine(`<span class="gray">⏳ jeda 1 detik sebelum batch berikutnya...</span>`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+
+        await uploadFileToGitHub(token, owner, repo, filePath, content);
+        uploaded++;
+        results.push({ path: filePath, status: 'success' });
+        logLine(`<span class="ok">✓</span> <span class="path">${filePath}</span> <span class="gray">→ committed</span>`);
+
+        const progress = Math.round(((i + 1) / filesToUpload.length) * 100);
+        onProgress(progress, filesToUpload.length);
+
+      } catch (err) {
+        failed++;
+        results.push({ path: filePath, status: 'failed', error: err.message });
+        logLine(`<span class="bad">✗ ${filePath} — ${err.message}</span>`);
       }
     }
 
-    return { 
-      uploaded, 
-      failed, 
-      total: fileList.length, 
-      processed: totalFiles,
-      results,
-      skipped: fileList.length - totalFiles
-    };
+    if (fileList.length > MAX_FILES) {
+      logLine(`<span class="gray">warning:</span> ${fileList.length - MAX_FILES} file tidak diupload (batas maksimum ${MAX_FILES})`);
+    }
+
+    return { uploaded, failed, total: fileList.length, processed: filesToUpload.length, results };
   }
 
   // ===== LIST REPOSITORIES =====
@@ -879,6 +803,7 @@
     container.innerHTML = html;
     repoListContainer.classList.add('active');
 
+    // Simpan data untuk digunakan di fungsi delete
     window._repoData = { token, owner };
   }
 
@@ -897,6 +822,7 @@
     }
 
     const resultDiv = document.getElementById('result');
+    const logEl = document.getElementById('log');
     
     try {
       logLine(`<span class="gray">remote:</span> menghapus repository <span class="path">${repoName}</span> ...`);
@@ -909,6 +835,7 @@
       
       logLine(`<span class="ok">remote: repository ${repoName} berhasil dihapus ✓</span>`);
       
+      // Refresh list
       await loadRepositories();
       
     } catch (error) {
@@ -962,7 +889,6 @@
     const owner = document.getElementById('owner').value.trim();
     const repo  = document.getElementById('repo').value.trim();
     const mode  = document.getElementById('mode').value;
-    const maxFiles = parseInt(document.getElementById('maxFiles').value);
     const fileInput = document.getElementById('zipFile');
     const file = fileInput.files[0];
 
@@ -986,7 +912,6 @@
     const statusText  = document.getElementById('statusText');
     const resultDiv   = document.getElementById('result');
     const repoListContainer = document.getElementById('repoListContainer');
-    const batchStatus = document.getElementById('batchStatus');
 
     submitBtn.disabled = true;
     submitBtn.textContent = '⏳ Uploading...';
@@ -996,54 +921,39 @@
     progressFill.style.width = '0%';
     progressText.textContent = '0%';
     statusText.textContent = '📤 Membaca file ZIP...';
-    batchStatus.textContent = 'Menunggu...';
     clearLog();
     logLine(`<span class="gray">$</span> membaca <span class="path">${file.name}</span> ...`);
-    logLine(`<span class="gray">info:</span> maksimal file: <span class="orange">${maxFiles}</span>`);
 
     try {
       const zipBuffer = await file.arrayBuffer();
 
-      const result = await processZipFileBatch(
-        zipBuffer, token, owner, repo, mode, maxFiles,
-        (progress, total, uploaded, failed) => {
-          progressFill.style.width = progress + '%';
-          progressText.textContent = progress + '%';
-          statusText.textContent = `📤 Uploading ${progress}% (${uploaded}/${total} files)`;
-        },
-        (batchNum, totalBatches, batchSize) => {
-          batchStatus.textContent = `Batch ${batchNum}/${totalBatches} (${batchSize} file per batch)`;
-        }
-      );
+      const result = await processZipFile(zipBuffer, token, owner, repo, mode, (progress, total) => {
+        progressFill.style.width = progress + '%';
+        progressText.textContent = progress + '%';
+        statusText.textContent = `📤 Uploading ${Math.round(progress)}% (${Math.round(progress * total / 100)}/${total} files)`;
+      });
 
       if (result.uploaded > 0) {
-        let statusClass = 'success';
-        let statusMsg = '✅ Upload Berhasil!';
-        if (result.failed > 0 && result.uploaded > 0) {
-          statusClass = 'warning';
-          statusMsg = '⚠️ Upload Selesai dengan Beberapa Gagal';
-        }
-        resultDiv.className = statusClass;
+        resultDiv.className = 'success';
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = `
-          <strong>${statusMsg}</strong><br>
+          <strong>✅ Upload Berhasil!</strong><br>
           📁 Total file dalam ZIP: ${result.total}<br>
           ✅ Berhasil diupload: ${result.uploaded}<br>
           ${result.failed > 0 ? `❌ Gagal: ${result.failed}<br>` : ''}
-          ${result.skipped > 0 ? `⏭️ Dilewati: ${result.skipped} file (melebihi batas ${maxFiles})<br>` : ''}
+          ${result.total > result.processed ? `⚠️ ${result.total - result.processed} file tidak diproses (batas maksimum 100 file)<br>` : ''}
           🔗 <a href="https://github.com/${owner}/${repo}" target="_blank">Lihat Repository</a>
         `;
         if (result.failed > 0) {
           const failedFiles = result.results.filter(r => r.status === 'failed');
           let failedList = '<br><br><strong>File gagal:</strong><br>';
-          failedFiles.slice(0, 10).forEach(f => { failedList += `▸ ${f.path}<br>`; });
-          if (failedFiles.length > 10) failedList += `▸ dan ${failedFiles.length - 10} file lainnya`;
+          failedFiles.slice(0, 5).forEach(f => { failedList += `▸ ${f.path}<br>`; });
+          if (failedFiles.length > 5) failedList += `▸ dan ${failedFiles.length - 5} file lainnya`;
           resultDiv.innerHTML += failedList;
         }
         progressFill.style.width = '100%';
         progressText.textContent = '100%';
         statusText.textContent = '✅ Selesai!';
-        batchStatus.textContent = `Selesai! ${result.uploaded}/${result.processed} file terupload`;
         logLine(`<span class="ok">remote: selesai. ${result.uploaded}/${result.processed} file ter-push.</span>`);
       } else {
         throw new Error('Tidak ada file yang berhasil diupload');
@@ -1057,7 +967,6 @@
       progressFill.style.width = '0%';
       progressText.textContent = '0%';
       statusText.textContent = '❌ Gagal';
-      batchStatus.textContent = '❌ Error';
       logLine(`<span class="bad">fatal: ${error.message}</span>`);
     } finally {
       submitBtn.disabled = false;
